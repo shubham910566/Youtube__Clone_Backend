@@ -82,10 +82,16 @@ export const signIn = async (req, res) => {
     // Generate JWT token with user's ID
     const token = jwt.sign({ userId: user._id }, JWT_SECRET);
 
-    // Set token in HTTP-only cookie
-    res.cookie('token', token, cookieOptions);
+    /// ✅ Determine if connection is secure (true for Render)
+    const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https';
 
-    // Send success response along with token and user data
+    // ✅ Set cookie based on current request
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: isSecure,   // 👈 true for HTTPS, false for localhost
+      sameSite: 'Lax'
+    });
+
     res.json({
       message: 'Logged in successfully',
       success: true,
@@ -105,5 +111,12 @@ export const signIn = async (req, res) => {
 // ==========================
 export const logout = async (req, res) => {
   // Clear the token cookie to log the user out
-  res.clearCookie('token', cookieOptions).json({ message: 'Logged out successfully' });
+  const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https';
+
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: isSecure,
+    sameSite: 'Lax'
+  });
+  res.json({ message: 'Logged out successfully' });
 };
