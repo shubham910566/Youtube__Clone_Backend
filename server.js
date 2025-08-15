@@ -16,9 +16,9 @@ const port = PORT || 8080;
 connectDB();
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://youtube-clone-p9f9.vercel.app/"],
     credentials:true
-}))
+})) 
 app.use(express.json());
 app.use(cookieParser());
 
